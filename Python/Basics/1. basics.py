@@ -155,3 +155,19 @@ Tuple is a collection which is ordered and unchangeable. Allows duplicate member
 Set is a collection which is unordered, unchangeable*, and unindexed. No duplicate members.
 Dictionary is a collection which is ordered** and changeable. No duplicate members.
 """
+#What is a Virtual Environment? - A virtual environment is a self-contained directory that contains a Python installation for a particular version of Python, plus a number of additional packages. It allows you to manage dependencies for different projects separately, avoiding conflicts between package versions.
+#Creating a Virtual Environment
+# python -m venv myenv  
+#Activating a Virtual Environment
+# On Windows:
+# myenv\Scripts\activate
+# On macOS and Linux:
+# source myenv/bin/activate
+#Deactivating a Virtual Environment
+# deactivate
+#Installing Packages in a Virtual Environment
+# pip install package_name
+#Listing Installed Packages
+# pip list
+#Removing a Package
+# pip uninstall package_name
