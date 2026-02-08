@@ -171,3 +171,84 @@ Dictionary is a collection which is ordered** and changeable. No duplicate membe
 # pip list
 #Removing a Package
 # pip uninstall package_name
+
+#Python String Formatting
+name = "Alice"
+age = 30    
+print("My name is {} and I am {} years old.".format(name, age))
+#Output: My name is Alice and I am 30 years old.
+
+#F-Strings
+name = "Alice"
+age = 30
+print(f"My name is {name} and I am {age} years old.")
+#Output: My name is Alice and I am 30 years old.
+price = 59
+txt = f"The price is {price} dollars"
+print(txt)
+#Output: The price is 59 dollars
+
+price = 49
+txt = f"It is very {'Expensive' if price>50 else 'Cheap'}"
+print(txt)
+#Output: It is very Cheap
+
+fruit = "apples"
+txt = f"I love {fruit.upper()}"
+print(txt)
+#Output: I love APPLES
+
+price = 59000
+txt = f"The price is {price:,} dollars"
+print(txt)
+#Output: The price is 59,000 dollars
+
+#Input Function
+name = input("Enter your name: ")
+print("Hello, " + name + "!")
+
+#another example
+name = input("Enter your name:")
+print(f"Hello {name}")
+fav1 = input("What is your favorite animal:")
+fav2 = input("What is your favorite color:")
+fav3 = input("What is your favorite number:")
+print(f"Do you want a {fav2} {fav1} with {fav3} legs?")
+
+#Python Virtual Environment - A virtual environment is a self-contained directory that contains a Python installation for a particular version of Python, plus a number of additional packages. It allows you to manage dependencies for different projects separately, avoiding conflicts between package versions.
+"""
+A virtual environment in Python is an isolated environment on your computer, where you can run and test your Python projects.
+It allows you to manage project-specific dependencies without interfering with other projects or the original Python installation.
+Think of a virtual environment as a separate container for each Python project. Each container:
+
+1. Has its own Python interpreter
+2. Has its own set of installed packages
+3. Is isolated from other virtual environments
+4. Can have different versions of the same package
+"""
+#Python interpreter
+""" - The Python interpreter is a program that reads and executes Python code. 
+#It can be used in interactive mode, where you can type and execute code line by line, or in script mode, where you can write a Python script and execute it as a whole. 
+#The interpreter processes the code, converts it into bytecode, and then executes it. It also provides features like error handling, memory management, and access to built-in functions and libraries.
+
+Creating a Virtual Environment
+To create a virtual environment in Python, you can use the built-in venv module. Here are the steps to create and activate a virtual environment:
+1. Open a terminal or command prompt.
+2. Navigate to the directory where you want to create the virtual environment.
+3. Run the following command to create a virtual environment named "myenv":
+   python -m venv myenv
+4. To activate the virtual environment, use the following command:
+    On Windows:
+    myenv\Scripts\activate
+    On macOS and Linux:
+    source myenv/bin/activate
+5. Once activated, you will see the name of the virtual environment in your terminal prompt, indicating that you are now working within that environment.
+6. You can now install packages and run Python code within this virtual environment without affecting other projects
+or the global Python installation.
+Deactivating a Virtual Environment
+To deactivate the virtual environment and return to the global Python environment, simply run the following command:
+deactivate
+This will exit the virtual environment and return you to the global Python environment, where you can work
+with other projects or the original Python installation.
+
+"""
