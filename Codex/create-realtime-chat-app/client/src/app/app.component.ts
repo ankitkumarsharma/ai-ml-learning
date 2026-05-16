@@ -23,6 +23,7 @@ export class AppComponent {
   protected readonly chat = inject(ChatService);
   protected readonly name = signal('');
   protected readonly draft = signal('');
+  protected readonly searchTerm = signal('');
   protected readonly groupName = signal('');
   protected readonly creatingGroup = signal(false);
   protected readonly selectedGroupMembers = signal<string[]>([]);
@@ -38,8 +39,8 @@ export class AppComponent {
       avatar: this.createAvatar(user.name),
       subtitle: 'online',
       preview: 'Private one-to-one chat',
-      type: 'direct'
-    }));
+      type: 'direct' as const
+    })).filter(contact => this.matchesSearch(contact));
   });
   protected readonly groupContacts = computed<Conversation[]>(() => {
     return this.chat.groups().map(group => ({
@@ -48,8 +49,8 @@ export class AppComponent {
       avatar: this.createAvatar(group.name),
       subtitle: `${group.members.length} members`,
       preview: group.members.map(member => member.name).join(', '),
-      type: 'group'
-    }));
+      type: 'group' as const
+    })).filter(contact => this.matchesSearch(contact));
   });
   protected readonly conversations = computed(() => [...this.directContacts(), ...this.groupContacts()]);
   protected readonly activeContact = computed(() => {
@@ -81,6 +82,11 @@ export class AppComponent {
   protected selectContact(contact: Conversation): void {
     this.draft.set('');
     this.chat.selectRoom(contact.id);
+  }
+
+  protected closeConversation(): void {
+    this.draft.set('');
+    this.chat.selectRoom('');
   }
 
   protected toggleGroupMember(userId: string, checked: boolean): void {
@@ -158,6 +164,16 @@ export class AppComponent {
 
   private createDirectRoomId(otherUserId: string): string {
     const currentUserId = this.chat.currentUser()?.id ?? '';
-    return ['dm', ...[currentUserId, otherUserId].sort()].join('-');
+    return `dm:${[currentUserId, otherUserId].sort().join(':')}`;
+  }
+
+  private matchesSearch(contact: Conversation): boolean {
+    const term = this.searchTerm().trim().toLowerCase();
+
+    if (!term) {
+      return true;
+    }
+
+    return `${contact.name} ${contact.subtitle} ${contact.preview}`.toLowerCase().includes(term);
   }
 }

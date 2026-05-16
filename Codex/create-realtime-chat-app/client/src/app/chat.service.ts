@@ -25,6 +25,7 @@ export class ChatService {
   readonly currentUser = signal<ActiveUser | null>(null);
   readonly activeUsers = signal<ActiveUser[]>([]);
   readonly groups = signal<ChatGroup[]>([]);
+  readonly unreadCounts = signal<Record<string, number>>({});
 
   private socket: Socket;
   private joinedName = '';
@@ -52,6 +53,15 @@ export class ChatService {
     this.socket.on('chat:message', message => {
       if (message?.roomId === this.activeRoomId()) {
         this.messages.update(current => [...current, message]);
+        this.clearUnread(message.roomId);
+        return;
+      }
+
+      if (message?.roomId) {
+        this.unreadCounts.update(current => ({
+          ...current,
+          [message.roomId]: (current[message.roomId] ?? 0) + 1
+        }));
       }
     });
   }
@@ -80,6 +90,12 @@ export class ChatService {
     this.activeRoomId.set(roomId);
     this.messages.set([]);
 
+    if (!roomId) {
+      return;
+    }
+
+    this.clearUnread(roomId);
+
     if (this.socket.connected && this.joinedName) {
       this.socket.emit('conversation:join', roomId);
     }
@@ -87,5 +103,21 @@ export class ChatService {
 
   createGroup(name: string, memberIds: string[]): void {
     this.socket.emit('group:create', { name, memberIds });
+  }
+
+  unreadCount(roomId: string): number {
+    return this.unreadCounts()[roomId] ?? 0;
+  }
+
+  private clearUnread(roomId: string): void {
+    this.unreadCounts.update(current => {
+      if (!current[roomId]) {
+        return current;
+      }
+
+      const next = { ...current };
+      delete next[roomId];
+      return next;
+    });
   }
 }

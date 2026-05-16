@@ -30,7 +30,13 @@
         </header>
 
         <div class="search-box">
-          <input placeholder="Search chats" aria-label="Search contacts">
+          <input
+            name="searchTerm"
+            placeholder="Search chats"
+            aria-label="Search contacts"
+            [ngModel]="searchTerm()"
+            (ngModelChange)="searchTerm.set($event)"
+          >
         </div>
 
         <button
@@ -81,7 +87,9 @@
 
         <nav class="contact-list">
           <h2>Active Users</h2>
-          <p class="list-empty" *ngIf="directContacts().length === 0">No other users online</p>
+          <p class="list-empty" *ngIf="directContacts().length === 0">
+            {{ searchTerm().trim() ? 'No matching users' : 'No other users online' }}
+          </p>
           <button
             *ngFor="let contact of directContacts()"
             type="button"
@@ -93,14 +101,21 @@
             <span class="contact-copy">
               <span class="contact-row">
                 <strong>{{ contact.name }}</strong>
-                <small>{{ contact.subtitle }}</small>
+                <span class="row-side">
+                  <small>{{ contact.subtitle }}</small>
+                  <span class="badge" *ngIf="chat.unreadCount(contact.id) > 0">
+                    {{ chat.unreadCount(contact.id) }}
+                  </span>
+                </span>
               </span>
               <span class="preview">{{ contact.preview }}</span>
             </span>
           </button>
 
           <h2>Groups</h2>
-          <p class="list-empty" *ngIf="groupContacts().length === 0">No groups yet</p>
+          <p class="list-empty" *ngIf="groupContacts().length === 0">
+            {{ searchTerm().trim() ? 'No matching groups' : 'No groups yet' }}
+          </p>
           <button
             *ngFor="let contact of groupContacts()"
             type="button"
@@ -112,7 +127,12 @@
             <span class="contact-copy">
               <span class="contact-row">
                 <strong>{{ contact.name }}</strong>
-                <small>{{ contact.subtitle }}</small>
+                <span class="row-side">
+                  <small>{{ contact.subtitle }}</small>
+                  <span class="badge" *ngIf="chat.unreadCount(contact.id) > 0">
+                    {{ chat.unreadCount(contact.id) }}
+                  </span>
+                </span>
               </span>
               <span class="preview">{{ contact.preview }}</span>
             </span>
@@ -123,6 +143,7 @@
       <section class="conversation" aria-label="Chat window">
         <ng-container *ngIf="activeContact() as active; else noConversation">
           <header class="conversation-header">
+            <button type="button" class="back-button" aria-label="Back to chats" (click)="closeConversation()">‹</button>
             <div class="avatar" [class.group-avatar]="active.type === 'group'">{{ active.avatar }}</div>
             <div>
               <h1>{{ active.name }}</h1>

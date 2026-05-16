@@ -112,6 +112,10 @@ button:disabled {
   background: #f0f2f1;
 }
 
+.back-button {
+  display: none;
+}
+
 .profile-bar strong,
 .conversation-header h1 {
   display: block;
@@ -280,6 +284,13 @@ button:disabled {
   gap: 10px;
 }
 
+.row-side {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+
 .contact-row strong {
   overflow: hidden;
   color: #15241f;
@@ -299,6 +310,19 @@ button:disabled {
   margin-top: 4px;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.badge {
+  min-width: 20px;
+  height: 20px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 999px;
+  padding: 0 6px;
+  color: #ffffff;
+  background: #25d366;
+  font-size: 0.72rem;
+  font-weight: 800;
 }
 
 .conversation {
@@ -419,38 +443,119 @@ button:disabled {
     width: 100%;
     height: 100vh;
     min-height: 100vh;
-    grid-template-columns: 112px 1fr;
+    display: block;
     border: 0;
     border-radius: 0;
   }
 
-  .profile-bar {
-    justify-content: center;
+  .sidebar {
+    width: 100%;
+    height: 100vh;
+    border-right: 0;
   }
 
-  .profile-bar div:not(.avatar),
-  .search-box,
-  .new-group-button,
-  .group-builder,
-  .contact-list h2,
-  .list-empty,
-  .contact-copy {
+  .chat-panel:has(.conversation-header) .sidebar {
     display: none;
   }
 
+  .conversation {
+    width: 100%;
+    height: 100vh;
+  }
+
+  .chat-panel:not(:has(.conversation-header)) .conversation {
+    display: none;
+  }
+
+  .profile-bar,
+  .conversation-header {
+    min-height: 64px;
+    padding: 10px 14px;
+  }
+
+  .profile-bar {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+
+  .search-box,
+  .new-group-button,
+  .group-builder {
+    padding: 9px 12px;
+  }
+
   .contact {
-    justify-content: center;
-    padding: 14px 8px;
+    min-height: 72px;
+    padding: 12px 14px;
+  }
+
+  .contact-list h2 {
+    margin-top: 14px;
+  }
+
+  .back-button {
+    width: 36px;
+    height: 36px;
+    flex: 0 0 36px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    color: #24332e;
+    background: transparent;
+    font-size: 2rem;
+    line-height: 1;
+  }
+
+  .back-button:hover {
+    background: #dfe7e4;
+  }
+
+  .conversation-header .avatar {
+    width: 40px;
+    height: 40px;
+    flex-basis: 40px;
+  }
+
+  .conversation-header h1 {
+    max-width: 52vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .messages {
-    padding: 18px 14px;
+    padding: 16px 12px;
+  }
+
+  .message {
+    max-width: 84%;
   }
 
   .join-form,
   .composer {
     align-items: stretch;
+  }
+
+  .join-form {
     flex-direction: column;
+  }
+
+  .composer {
+    flex-direction: row;
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .composer input {
+    padding: 12px 14px;
+    border-radius: 999px;
+  }
+
+  .composer button {
+    min-width: 68px;
+    padding: 0 16px;
+    border-radius: 999px;
   }
 
   .join-form button,

@@ -14,6 +14,7 @@ const histories = new Map();
 const users = new Map();
 const activeRooms = new Map();
 const userGroups = new Map();
+const groups = new Map();
 
 app.use(cors({ origin: CLIENT_ORIGIN }));
 app.use(express.json());
@@ -77,6 +78,20 @@ function getGroupsForUser(userId) {
   return userGroups.get(userId) ?? [];
 }
 
+function getRecipientsForRoom(roomId) {
+  if (roomId.startsWith('dm:')) {
+    return roomId.slice(3).split(':').filter(id => users.has(id));
+  }
+
+  const group = groups.get(roomId);
+
+  if (group) {
+    return group.members.map(member => member.id).filter(id => users.has(id));
+  }
+
+  return [];
+}
+
 io.on('connection', socket => {
   socket.emit('users:count', users.size);
   socket.emit('users:list', getActiveUsers());
@@ -107,6 +122,8 @@ io.on('connection', socket => {
       createdBy: { id: socket.id, name: creator }
     };
 
+    groups.set(group.id, group);
+
     for (const memberId of memberIds) {
       const groups = getGroupsForUser(memberId);
       groups.push(group);
@@ -116,7 +133,7 @@ io.on('connection', socket => {
   });
 
   socket.on('conversation:join', rawRoomId => {
-    const roomId = String(rawRoomId || 'general').trim().slice(0, 48) || 'general';
+    const roomId = String(rawRoomId || 'general').trim().slice(0, 140) || 'general';
     const previousRoomId = activeRooms.get(socket.id);
 
     if (previousRoomId) {
@@ -132,7 +149,7 @@ io.on('connection', socket => {
   });
 
   socket.on('chat:message', payload => {
-    const roomId = String(payload?.roomId || activeRooms.get(socket.id) || 'general').trim().slice(0, 48);
+    const roomId = String(payload?.roomId || activeRooms.get(socket.id) || 'general').trim().slice(0, 140);
     const text = String(payload?.text || '').trim().slice(0, 500);
     const user = users.get(socket.id);
 
@@ -142,6 +159,17 @@ io.on('connection', socket => {
 
     const message = createMessage({ roomId, user, text });
     addMessage(roomId, message);
+
+    const recipients = getRecipientsForRoom(roomId);
+
+    if (recipients.length > 0) {
+      for (const recipientId of recipients) {
+        io.to(recipientId).emit('chat:message', message);
+      }
+
+      return;
+    }
+
     io.to(roomId).emit('chat:message', message);
   });
 

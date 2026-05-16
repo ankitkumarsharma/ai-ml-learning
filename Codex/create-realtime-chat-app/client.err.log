@@ -225,3 +225,55 @@ X [ERROR] NG9: Property 'members' does not exist on type 'Conversation'. [plugin
 
 - Changes detected. Rebuilding...
 
+- Changes detected. Rebuilding...
+
+- Changes detected. Rebuilding...
+
+- Changes detected. Rebuilding...
+
+X [ERROR] TS2345: Argument of type '() => { id: string; name: string; avatar: string; subtitle: string; preview: string; type: string; }[]' is not assignable to parameter of type '() => Conversation[]'.
+  Type '{ id: string; name: string; avatar: string; subtitle: string; preview: string; type: string; }[]' is not assignable to type 'Conversation[]'.
+    Type '{ id: string; name: string; avatar: string; subtitle: string; preview: string; type: string; }' is not assignable to type 'Conversation'. [plugin angular-compiler]
+
+    src/app/app.component.ts:35:63:
+      35 │ ...otected readonly directContacts = computed<Conversation[]>(() => {
+         ╵                                                               ~~~~~~~
+
+
+X [ERROR] TS2345: Argument of type '{ id: string; name: string; avatar: string; subtitle: string; preview: string; type: string; }' is not assignable to parameter of type 'Conversation'.
+  Types of property 'type' are incompatible.
+    Type 'string' is not assignable to type '"direct" | "group"'. [plugin angular-compiler]
+
+    src/app/app.component.ts:43:45:
+      43 │     })).filter(contact => this.matchesSearch(contact));
+         ╵                                              ~~~~~~~
+
+
+X [ERROR] TS2345: Argument of type '() => { id: string; name: string; avatar: string; subtitle: string; preview: string; type: string; }[]' is not assignable to parameter of type '() => Conversation[]'.
+  Type '{ id: string; name: string; avatar: string; subtitle: string; preview: string; type: string; }[]' is not assignable to type 'Conversation[]'.
+    Type '{ id: string; name: string; avatar: string; subtitle: string; preview: string; type: string; }' is not assignable to type 'Conversation'. [plugin angular-compiler]
+
+    src/app/app.component.ts:45:62:
+      45 │   protected readonly groupContacts = computed<Conversation[]>(() => {
+         ╵                                                               ~~~~~~~
+
+
+X [ERROR] TS2345: Argument of type '{ id: string; name: string; avatar: string; subtitle: string; preview: string; type: string; }' is not assignable to parameter of type 'Conversation'.
+  Types of property 'type' are incompatible.
+    Type 'string' is not assignable to type '"direct" | "group"'. [plugin angular-compiler]
+
+    src/app/app.component.ts:53:45:
+      53 │     })).filter(contact => this.matchesSearch(contact));
+         ╵                                              ~~~~~~~
+
+
+- Changes detected. Rebuilding...
+
+- Changes detected. Rebuilding...
+
+- Changes detected. Rebuilding...
+
+- Changes detected. Rebuilding...
+
+- Changes detected. Rebuilding...
+
