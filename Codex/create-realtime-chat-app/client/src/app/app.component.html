@@ -1,0 +1,63 @@
+<main class="shell">
+  <section class="chat-panel" aria-label="Realtime chat">
+    <header class="chat-header">
+      <div>
+        <p class="eyebrow">Angular + Node.js</p>
+        <h1>Realtime Chat</h1>
+      </div>
+
+      <div class="status" [class.online]="chat.connected()">
+        <span></span>
+        {{ chat.connected() ? 'Connected' : 'Offline' }} · {{ chat.onlineUsers() }} online
+      </div>
+    </header>
+
+    <section *ngIf="!joined(); else chatRoom" class="join-view" aria-label="Join chat">
+      <div>
+        <h2>Choose your display name</h2>
+        <p>Open this app in two browser windows to see messages appear instantly.</p>
+      </div>
+
+      <form class="join-form" (ngSubmit)="joinChat()">
+        <input
+          name="name"
+          maxlength="32"
+          placeholder="Your name"
+          autocomplete="name"
+          [ngModel]="name()"
+          (ngModelChange)="name.set($event)"
+        >
+        <button type="submit" [disabled]="!name().trim()">Join</button>
+      </form>
+    </section>
+
+    <ng-template #chatRoom>
+      <div #messageList class="messages" aria-live="polite">
+        <article
+          *ngFor="let message of chat.messages()"
+          class="message"
+          [class.system]="message.type === 'system'"
+          [class.mine]="message.user === name()"
+        >
+          <div class="message-meta" *ngIf="message.type !== 'system'">
+            <strong>{{ message.user }}</strong>
+            <time [attr.datetime]="message.createdAt">{{ formatTime(message.createdAt) }}</time>
+          </div>
+          <p>{{ message.text }}</p>
+        </article>
+      </div>
+
+      <form class="composer" (ngSubmit)="sendMessage()">
+        <input
+          name="message"
+          maxlength="500"
+          placeholder="Type a message"
+          autocomplete="off"
+          [ngModel]="draft()"
+          (ngModelChange)="draft.set($event)"
+        >
+        <button type="submit" [disabled]="!canSend()">Send</button>
+      </form>
+    </ng-template>
+  </section>
+</main>
