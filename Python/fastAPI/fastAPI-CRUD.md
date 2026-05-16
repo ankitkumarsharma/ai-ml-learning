@@ -1,32 +1,4 @@
-# FastAPI CRUD
-1. pip install fastapi uvicorn sqlalchemy
-2. uvicorn main:app --reload
-3. http://localhost:8000/docs
-4. 
-```python
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from typing import List
 
-app = FastAPI()
-
-# Pydantic model for data validation
-class Item(BaseModel):
-    id: int
-    name: str
-    price: float
-
-# In-memory "database"
-items = []
-
-# Create (POST)
-@app.post("/items/", response_model=Item)
-def create_item(item: Item):
-    items.append(item)
-    return item
-
-# Read all (GET)
-@app.get("/items/", response_model=List[Item])
 def read_items():
     return items
 
