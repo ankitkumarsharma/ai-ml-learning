@@ -1,21 +1,9 @@
 <main class="shell">
   <section class="chat-panel" aria-label="Realtime chat">
-    <header class="chat-header">
-      <div>
-        <p class="eyebrow">Angular + Node.js</p>
-        <h1>Realtime Chat</h1>
-      </div>
-
-      <div class="status" [class.online]="chat.connected()">
-        <span></span>
-        {{ chat.connected() ? 'Connected' : 'Offline' }} · {{ chat.onlineUsers() }} online
-      </div>
-    </header>
-
     <section *ngIf="!joined(); else chatRoom" class="join-view" aria-label="Join chat">
       <div>
         <h2>Choose your display name</h2>
-        <p>Open this app in two browser windows to see messages appear instantly.</p>
+        <p>Join to see active users, start one-to-one chats, or create a group.</p>
       </div>
 
       <form class="join-form" (ngSubmit)="joinChat()">
@@ -32,32 +20,155 @@
     </section>
 
     <ng-template #chatRoom>
-      <div #messageList class="messages" aria-live="polite">
-        <article
-          *ngFor="let message of chat.messages()"
-          class="message"
-          [class.system]="message.type === 'system'"
-          [class.mine]="message.user === name()"
-        >
-          <div class="message-meta" *ngIf="message.type !== 'system'">
-            <strong>{{ message.user }}</strong>
-            <time [attr.datetime]="message.createdAt">{{ formatTime(message.createdAt) }}</time>
+      <aside class="sidebar" aria-label="Contacts">
+        <header class="profile-bar">
+          <div class="avatar self">{{ name().slice(0, 2).toUpperCase() }}</div>
+          <div>
+            <strong>{{ name() }}</strong>
+            <span [class.online]="chat.connected()">{{ chat.connected() ? 'Connected' : 'Offline' }}</span>
           </div>
-          <p>{{ message.text }}</p>
-        </article>
-      </div>
+        </header>
 
-      <form class="composer" (ngSubmit)="sendMessage()">
-        <input
-          name="message"
-          maxlength="500"
-          placeholder="Type a message"
-          autocomplete="off"
-          [ngModel]="draft()"
-          (ngModelChange)="draft.set($event)"
+        <div class="search-box">
+          <input placeholder="Search chats" aria-label="Search contacts">
+        </div>
+
+        <button
+          *ngIf="!creatingGroup()"
+          type="button"
+          class="new-group-button"
+          (click)="startGroupCreation()"
         >
-        <button type="submit" [disabled]="!canSend()">Send</button>
-      </form>
+          New group
+        </button>
+
+        <form *ngIf="creatingGroup()" class="group-builder" (ngSubmit)="createGroup()">
+          <input
+            name="groupName"
+            maxlength="40"
+            placeholder="Group name"
+            [ngModel]="groupName()"
+            (ngModelChange)="groupName.set($event)"
+          >
+
+          <div class="member-picker">
+            <p *ngIf="activeUsers().length === 0">No active users to add</p>
+            <label *ngFor="let user of activeUsers()">
+              <input
+                type="checkbox"
+                [checked]="isSelectedForGroup(user)"
+                (change)="toggleGroupMember(user.id, $any($event.target).checked)"
+              >
+              <span>{{ user.name }}</span>
+            </label>
+          </div>
+
+          <p class="validation" *ngIf="selectedGroupMembers().length < 2">
+            Select at least 2 active users.
+          </p>
+
+          <div class="group-actions">
+            <button type="button" class="secondary-button" (click)="cancelGroupCreation()">Cancel</button>
+            <button
+              type="submit"
+              [disabled]="!canCreateGroup()"
+              title="Select at least 2 active users"
+            >
+              Create
+            </button>
+          </div>
+        </form>
+
+        <nav class="contact-list">
+          <h2>Active Users</h2>
+          <p class="list-empty" *ngIf="directContacts().length === 0">No other users online</p>
+          <button
+            *ngFor="let contact of directContacts()"
+            type="button"
+            class="contact"
+            [class.active]="contact.id === chat.activeRoomId()"
+            (click)="selectContact(contact)"
+          >
+            <span class="avatar">{{ contact.avatar }}</span>
+            <span class="contact-copy">
+              <span class="contact-row">
+                <strong>{{ contact.name }}</strong>
+                <small>{{ contact.subtitle }}</small>
+              </span>
+              <span class="preview">{{ contact.preview }}</span>
+            </span>
+          </button>
+
+          <h2>Groups</h2>
+          <p class="list-empty" *ngIf="groupContacts().length === 0">No groups yet</p>
+          <button
+            *ngFor="let contact of groupContacts()"
+            type="button"
+            class="contact"
+            [class.active]="contact.id === chat.activeRoomId()"
+            (click)="selectContact(contact)"
+          >
+            <span class="avatar group-avatar">{{ contact.avatar }}</span>
+            <span class="contact-copy">
+              <span class="contact-row">
+                <strong>{{ contact.name }}</strong>
+                <small>{{ contact.subtitle }}</small>
+              </span>
+              <span class="preview">{{ contact.preview }}</span>
+            </span>
+          </button>
+        </nav>
+      </aside>
+
+      <section class="conversation" aria-label="Chat window">
+        <ng-container *ngIf="activeContact() as active; else noConversation">
+          <header class="conversation-header">
+            <div class="avatar" [class.group-avatar]="active.type === 'group'">{{ active.avatar }}</div>
+            <div>
+              <h1>{{ active.name }}</h1>
+              <p>{{ active.subtitle }} · {{ chat.onlineUsers() }} online</p>
+            </div>
+          </header>
+
+          <div #messageList class="messages" aria-live="polite">
+            <p class="empty-state" *ngIf="chat.messages().length === 0">
+              No messages here yet. Start this conversation.
+            </p>
+
+            <article
+              *ngFor="let message of chat.messages()"
+              class="message"
+              [class.system]="message.type === 'system'"
+              [class.mine]="message.user === name()"
+            >
+              <div class="message-meta" *ngIf="message.type !== 'system'">
+                <strong>{{ message.user }}</strong>
+                <time [attr.datetime]="message.createdAt">{{ formatTime(message.createdAt) }}</time>
+              </div>
+              <p>{{ message.text }}</p>
+            </article>
+          </div>
+
+          <form class="composer" (ngSubmit)="sendMessage()">
+            <input
+              name="message"
+              maxlength="500"
+              placeholder="Type a message"
+              autocomplete="off"
+              [ngModel]="draft()"
+              (ngModelChange)="draft.set($event)"
+            >
+            <button type="submit" [disabled]="!canSend()">Send</button>
+          </form>
+        </ng-container>
+
+        <ng-template #noConversation>
+          <div class="conversation-empty">
+            <h1>Select a user or group</h1>
+            <p>Active users appear automatically. Create a group by selecting at least two active users.</p>
+          </div>
+        </ng-template>
+      </section>
     </ng-template>
   </section>
 </main>

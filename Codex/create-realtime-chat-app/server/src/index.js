@@ -10,8 +10,10 @@ const MAX_HISTORY = 50;
 
 const app = express();
 const server = http.createServer(app);
-const messages = [];
+const histories = new Map();
 const users = new Map();
+const activeRooms = new Map();
+const userGroups = new Map();
 
 app.use(cors({ origin: CLIENT_ORIGIN }));
 app.use(express.json());
@@ -20,7 +22,7 @@ app.get('/health', (_request, response) => {
   response.json({
     status: 'ok',
     users: users.size,
-    messages: messages.length
+    rooms: histories.size
   });
 });
 
@@ -31,9 +33,18 @@ const io = new Server(server, {
   }
 });
 
-function createMessage({ user, text, type = 'chat' }) {
+function getHistory(roomId) {
+  if (!histories.has(roomId)) {
+    histories.set(roomId, []);
+  }
+
+  return histories.get(roomId);
+}
+
+function createMessage({ roomId, user, text, type = 'chat' }) {
   return {
     id: randomUUID(),
+    roomId,
     user,
     text,
     type,
@@ -41,11 +52,12 @@ function createMessage({ user, text, type = 'chat' }) {
   };
 }
 
-function addMessage(message) {
-  messages.push(message);
+function addMessage(roomId, message) {
+  const history = getHistory(roomId);
+  history.push(message);
 
-  if (messages.length > MAX_HISTORY) {
-    messages.shift();
+  if (history.length > MAX_HISTORY) {
+    history.shift();
   }
 }
 
@@ -53,56 +65,92 @@ function emitUserCount() {
   io.emit('users:count', users.size);
 }
 
+function getActiveUsers() {
+  return [...users.entries()].map(([id, name]) => ({ id, name }));
+}
+
+function emitUsersList() {
+  io.emit('users:list', getActiveUsers());
+}
+
+function getGroupsForUser(userId) {
+  return userGroups.get(userId) ?? [];
+}
+
 io.on('connection', socket => {
-  socket.emit('chat:history', messages);
   socket.emit('users:count', users.size);
+  socket.emit('users:list', getActiveUsers());
 
   socket.on('user:join', rawName => {
     const name = String(rawName || '').trim().slice(0, 32) || 'Anonymous';
     users.set(socket.id, name);
-
-    const message = createMessage({
-      user: 'System',
-      text: `${name} joined the chat`,
-      type: 'system'
-    });
-
-    addMessage(message);
-    io.emit('chat:message', message);
+    socket.emit('user:me', { id: socket.id, name });
+    socket.emit('groups:list', getGroupsForUser(socket.id));
     emitUserCount();
+    emitUsersList();
   });
 
-  socket.on('chat:message', rawText => {
-    const text = String(rawText || '').trim().slice(0, 500);
+  socket.on('group:create', payload => {
+    const creator = users.get(socket.id);
+    const name = String(payload?.name || '').trim().slice(0, 40);
+    const requestedMembers = Array.isArray(payload?.memberIds) ? payload.memberIds : [];
+    const memberIds = [...new Set([socket.id, ...requestedMembers.filter(id => users.has(id))])];
+
+    if (!creator || !name || memberIds.length < 3) {
+      return;
+    }
+
+    const group = {
+      id: `group-${randomUUID()}`,
+      name,
+      members: memberIds.map(id => ({ id, name: users.get(id) })),
+      createdBy: { id: socket.id, name: creator }
+    };
+
+    for (const memberId of memberIds) {
+      const groups = getGroupsForUser(memberId);
+      groups.push(group);
+      userGroups.set(memberId, groups);
+      io.to(memberId).emit('group:created', group);
+    }
+  });
+
+  socket.on('conversation:join', rawRoomId => {
+    const roomId = String(rawRoomId || 'general').trim().slice(0, 48) || 'general';
+    const previousRoomId = activeRooms.get(socket.id);
+
+    if (previousRoomId) {
+      socket.leave(previousRoomId);
+    }
+
+    activeRooms.set(socket.id, roomId);
+    socket.join(roomId);
+    socket.emit('chat:history', {
+      roomId,
+      messages: getHistory(roomId)
+    });
+  });
+
+  socket.on('chat:message', payload => {
+    const roomId = String(payload?.roomId || activeRooms.get(socket.id) || 'general').trim().slice(0, 48);
+    const text = String(payload?.text || '').trim().slice(0, 500);
     const user = users.get(socket.id);
 
     if (!user || !text) {
       return;
     }
 
-    const message = createMessage({ user, text });
-    addMessage(message);
-    io.emit('chat:message', message);
+    const message = createMessage({ roomId, user, text });
+    addMessage(roomId, message);
+    io.to(roomId).emit('chat:message', message);
   });
 
   socket.on('disconnect', () => {
-    const user = users.get(socket.id);
-
-    if (!user) {
-      return;
-    }
-
     users.delete(socket.id);
-
-    const message = createMessage({
-      user: 'System',
-      text: `${user} left the chat`,
-      type: 'system'
-    });
-
-    addMessage(message);
-    socket.broadcast.emit('chat:message', message);
+    activeRooms.delete(socket.id);
+    userGroups.delete(socket.id);
     emitUserCount();
+    emitUsersList();
   });
 });
 

@@ -18,3 +18,105 @@ Application bundle generation complete. [2.398 seconds]
 Watch mode enabled. Watching for file changes...
   ➜  Local:   http://localhost:4200/
   ➜  Network: http://192.168.1.2:4200/
+Initial chunk files | Names | Raw size
+main.js             | main  | 22.70 kB | 
+
+Application bundle generation complete. [0.760 seconds]
+
+Page reload sent to client(s).
+Application bundle generation failed. [0.526 seconds]
+
+Initial chunk files | Names         |  Raw size
+polyfills.js        | polyfills     |  88.09 kB | 
+main.js             | main          |  27.50 kB | 
+styles.css          | styles        | 416 bytes | 
+
+                    | Initial total | 115.99 kB
+
+Application bundle generation complete. [0.375 seconds]
+
+Page reload sent to client(s).
+Initial chunk files | Names | Raw size
+main.js             | main  | 27.66 kB | 
+
+Application bundle generation complete. [0.595 seconds]
+
+Page reload sent to client(s).
+Initial chunk files | Names | Raw size
+main.js             | main  | 28.17 kB | 
+
+Application bundle generation complete. [0.449 seconds]
+
+Page reload sent to client(s).
+Initial chunk files | Names | Raw size
+main.js             | main  | 28.32 kB | 
+
+Application bundle generation complete. [0.369 seconds]
+
+Page reload sent to client(s).
+Application bundle generation failed. [0.564 seconds]
+
+Initial chunk files | Names         |  Raw size
+polyfills.js        | polyfills     |  88.09 kB | 
+main.js             | main          |  30.77 kB | 
+styles.css          | styles        | 416 bytes | 
+
+                    | Initial total | 119.27 kB
+
+Application bundle generation complete. [0.400 seconds]
+
+Page reload sent to client(s).
+Initial chunk files | Names | Raw size
+main.js             | main  | 31.54 kB | 
+
+Application bundle generation complete. [0.769 seconds]
+
+Page reload sent to client(s).
+Initial chunk files | Names | Raw size
+main.js             | main  | 31.70 kB | 
+
+Application bundle generation complete. [0.542 seconds]
+
+Page reload sent to client(s).
+Initial chunk files | Names | Raw size
+main.js             | main  | 32.28 kB | 
+
+Application bundle generation complete. [0.317 seconds]
+
+Page reload sent to client(s).
+Application bundle generation failed. [0.357 seconds]
+
+Initial chunk files | Names         |  Raw size
+polyfills.js        | polyfills     |  88.09 kB | 
+main.js             | main          |  33.20 kB | 
+styles.css          | styles        | 416 bytes | 
+
+                    | Initial total | 121.69 kB
+
+Application bundle generation complete. [0.285 seconds]
+
+Page reload sent to client(s).
+Initial chunk files | Names | Raw size
+main.js             | main  | 33.66 kB | 
+
+Application bundle generation complete. [0.348 seconds]
+
+Page reload sent to client(s).
+Initial chunk files | Names | Raw size
+main.js             | main  | 33.92 kB | 
+
+Application bundle generation complete. [0.301 seconds]
+
+Page reload sent to client(s).
+Initial chunk files | Names | Raw size
+main.js             | main  | 36.25 kB | 
+
+Application bundle generation complete. [0.216 seconds]
+
+Page reload sent to client(s).
+Initial chunk files | Names | Raw size
+main.js             | main  | 36.78 kB | 
+
+Application bundle generation complete. [0.361 seconds]
+
+Page reload sent to client(s).
