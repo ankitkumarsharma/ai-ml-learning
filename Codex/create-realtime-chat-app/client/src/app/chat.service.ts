@@ -2,7 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
 import { ChatMessage } from './chat-message.model';
 
-const SERVER_URL = 'http://localhost:3000';
+const SERVER_URL = window.location.port === '4200' ? 'http://localhost:3000' : window.location.origin;
 
 export interface ActiveUser {
   id: string;

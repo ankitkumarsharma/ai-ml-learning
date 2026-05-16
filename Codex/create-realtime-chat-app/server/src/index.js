@@ -1,12 +1,16 @@
 import express from 'express';
 import http from 'node:http';
 import { randomUUID } from 'node:crypto';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import cors from 'cors';
 import { Server } from 'socket.io';
 
 const PORT = process.env.PORT || 3000;
-const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || 'http://localhost:4200';
 const MAX_HISTORY = 50;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const clientDistPath = path.resolve(__dirname, '../../client/dist/client/browser');
 
 const app = express();
 const server = http.createServer(app);
@@ -16,7 +20,7 @@ const activeRooms = new Map();
 const userGroups = new Map();
 const groups = new Map();
 
-app.use(cors({ origin: CLIENT_ORIGIN }));
+app.use(cors({ origin: true }));
 app.use(express.json());
 
 app.get('/health', (_request, response) => {
@@ -29,7 +33,7 @@ app.get('/health', (_request, response) => {
 
 const io = new Server(server, {
   cors: {
-    origin: CLIENT_ORIGIN,
+    origin: true,
     methods: ['GET', 'POST']
   }
 });
@@ -180,6 +184,12 @@ io.on('connection', socket => {
     emitUserCount();
     emitUsersList();
   });
+});
+
+app.use(express.static(clientDistPath));
+
+app.get('*', (_request, response) => {
+  response.sendFile(path.join(clientDistPath, 'index.html'));
 });
 
 server.listen(PORT, () => {

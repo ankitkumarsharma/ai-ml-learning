@@ -19,7 +19,7 @@ Install dependencies:
 npm install
 ```
 
-Start both the API server and Angular dev server:
+Start both the API server and Angular dev server for development:
 
 ```bash
 npm run dev
@@ -36,6 +36,34 @@ The Socket.IO server runs on:
 ```text
 http://localhost:3000
 ```
+
+## Run On One Port
+
+Build the Angular app and start the Node server:
+
+```bash
+npm run build
+npm start
+```
+
+Open:
+
+```text
+http://localhost:3000
+```
+
+The Node server serves the Angular build and Socket.IO from the same port. This is the recommended setup for Render.
+
+## Render Deploy
+
+Use these commands:
+
+```text
+Build Command: npm install && npm run build
+Start Command: npm start
+```
+
+Vercel static hosting is not recommended for this version because Socket.IO needs a persistent Node server.
 
 ## Project Structure
 
